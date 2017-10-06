@@ -243,7 +243,7 @@ urbaClicUtils.getModelLayer = function (m, ign_key) {
             options.style = 'bdparcellaire';
         }
 
-        var layer = new L.TileLayer.WMTS('http://wxs.ign.fr/' + ign_key + '/geoportail/wmts', options);
+        var layer = new L.TileLayer.WMTS('https://wxs.ign.fr/' + ign_key + '/geoportail/wmts', options);
 
         return {
             title: i18n.t(title),
@@ -1182,7 +1182,6 @@ jQuery(document).ready(function ($) {
                     layers.zones_servitudes.addLayer(layer_assiette2);
 
                 });
-                console.log("SERVITUDES")
 
             });
             
@@ -1191,7 +1190,6 @@ jQuery(document).ready(function ($) {
         
         var getPlusDetail = function () {
             container.find('.map[data-pluid]').each(function () {
-                console.log("plu run")
                /*if (layers.servitudes == null) {
                     layers.servitudes = L.layerGroup();
                     layers.servitudes.addTo(map);
@@ -1221,7 +1219,6 @@ jQuery(document).ready(function ($) {
                 var map_container = jQuery(this);
                 //var servitude_id = map_container.data('servitudeid');
                 var properties = map_container.data('properties');
-                    console.log(properties)
                 var options = jQuery.extend(urbaClic_options.leaflet_map_options, {
                     zoomControl: false
                 });
@@ -1260,9 +1257,10 @@ jQuery(document).ready(function ($) {
 
 
             });
-        console.log("getPlusDetail")
 
         }
+        
+       
 
         var showData = function (feature, layer, evt) {
 
@@ -1271,7 +1269,10 @@ jQuery(document).ready(function ($) {
                 feature.properties.code_dep,
                 feature.properties.code_com
             ];
-
+            
+            
+            
+            
             if (feature.properties.code_arr != "000") {
                 parcelleId.push(feature.properties.code_arr);
             } else {
@@ -1324,7 +1325,6 @@ jQuery(document).ready(function ($) {
              if (urbaClic_options.get_servitude) {
 
                     var geom = layer.toGeoJSON();
-                   console.log(geom)
                     geom = geom.geometry;
                     var url = URBA_API + 'servitudes';
     
@@ -1352,8 +1352,11 @@ jQuery(document).ready(function ($) {
             //load_plu
                 
                 if (urbaClic_options.get_plu) {
-            var lat = layers.marqueur._latlng.lat;
-            var lng = layers.marqueur._latlng.lng;
+                    var bounds = layer.getBounds();
+                    var center = bounds.getCenter()
+                    
+            var lat = center.lat;
+            var lng = center.lng;
             var data = "\r\n<wfs:GetFeature service=\"WFS\" version=\"1.0.0\"\r\n      outputFormat=\"json\"\r\n      xmlns:wfs=\"http://www.opengis.net/wfs\"\r\n      xmlns=\"http://www.opengis.net/ogc\"\r\n      xmlns:gml=\"http://www.opengis.net/gml\"\r\n      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n      xsi:schemaLocation=\"http://www.opengis.net/wfs\r\n                          http://schemas.opengis.net/wfs/1.0.0/WFS-basic.xsd\">\r\n      <wfs:Query typeName=\"PLU:ZONE_URBA\" srsName=\"EPSG:4326\">\r\n        <Filter>\r\n          <Contains>\r\n            <PropertyName>GEOM</PropertyName>\r\n              <gml:Point srsName=\"http://www.opengis.net/gml/srs/epsg.xml#4326\">\r\n                <gml:coordinates>"+lng+","+lat+"</gml:coordinates>\r\n              </gml:Point>\r\n            </Contains>\r\n          </Filter>\r\n      </wfs:Query>\r\n    </wfs:GetFeature>";
             
             var xhr = new XMLHttpRequest();
