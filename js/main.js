@@ -304,6 +304,74 @@ jQuery(document).ready(function ($) {
         '</div>',
     ];
 
+    Templates.plusData = [
+            '{{#ifCond plus "!=" null}}',
+            '<div class="servitudes">',
+            '<h4>plu</h4>',
+    
+            '{{#ifCount plus "==" 0}}',
+            '<ul>',
+            '<li>aucun</li>',
+            '</ul>',
+            '{{else}}',
+    
+            '<table>',
+            '<tr>',
+            '<th class="servitude_id"></th>',
+            '<th class="name">Libellé</th>',
+            '<th></th>',
+            '</tr>',
+            '{{#each plus}}',
+            '<tr>',
+            '<td class="servitude_id"><div class="map"  data-pluid="{{id}}" data-properties="{{jsonencode geometry}}"></div></td>',
+            '<td class="name">{{properties.LIBELONG}}</td>',
+            '<td class=""><a target=_blank href="{{properties.URLFIC}}">Télécharger le règlement</a></td>',
+            '</tr>',
+    
+            '{{/each}}',
+            '</table>',
+            '</ul>',
+    
+            '{{/ifCount}}',
+            '</div>',
+            '{{/ifCond}}'
+        ];
+    
+    Templates.servitudesData = [
+            '{{#ifCond servitudes "!=" null}}',
+        '<div class="servitudes">',
+        '<h4>servitudes</h4>',
+
+        '{{#ifCount servitudes "==" 0}}',
+        '<ul>',
+        '<li>aucune</li>',
+        '</ul>',
+        '{{else}}',
+
+        '<p>La parcelle est concernée par {{count servitudes}} servitudes</p>',
+        '<table>',
+        '<tr>',
+        '<th class="servitude_id">ID</th>',
+        '<th class="name">nom</th>',
+        '<th class="type">type</th>',
+        '<th class="code_merimee">Code Mérimée</th>',
+        '</tr>',
+        '{{#each servitudes}}',
+        '<tr>',
+        '<td class="servitude_id"><div class="map" data-servitudeid="{{_id}}" data-properties="{{jsonencode .}}"></div></td>',
+        '<td class="name">{{nom}}</td>',
+        '<td class="type">{{type}}</td>',
+        '<td class="code_merimee"><a target=_blank href="http://www.culture.gouv.fr/public/mistral/mersri_fr?ACTION=CHERCHER&FIELD_1=REF&VALUE_1={{codeMerimee}}">{{codeMerimee}}</a></td>',
+        '</tr>',
+
+        '{{/each}}',
+        '</table>',
+        '</ul>',
+
+        '{{/ifCount}}',
+        '</div>',
+        '{{/ifCond}}'
+        ];
 
     Templates.parcelleData = [
 
@@ -363,64 +431,8 @@ jQuery(document).ready(function ($) {
         '</div>',
         '{{/with}}',
         '{{/ifCond}}',
-
-
-
-
-        '{{#ifCond plu "!=" null}}',
-        '{{#with plu}}',
-        '<div class="plu">',
-        '<h4>PLU</h4>',
-
-        '<table>',
-        '<tr>',
-        '<th class="libelle">Libellé</th>',
-        '<th class="txt">Texte</th>',
-        '</tr>',
-        '<tr>',
-        '<td class="libelle">{{LIBELLE}}</td>',
-        '<td class="txt">{{TXT}}</td>',
-        '</tr>',
-        '</table>',
-
-        '</div>',
-        '{{/with}}',
-        '{{/ifCond}}',
-
-        '{{#ifCond servitudes "!=" null}}',
-        '<div class="servitudes">',
-        '<h4>servitudes</h4>',
-
-        '{{#ifCount servitudes "==" 0}}',
-        '<ul>',
-        '<li>aucune</li>',
-        '</ul>',
-        '{{else}}',
-
-        '<p>La parcelle est concernée par {{count servitudes}} servitudes</p>',
-        '<table>',
-        '<tr>',
-        '<th class="servitude_id">ID</th>',
-        '<th class="name">nom</th>',
-        '<th class="type">type</th>',
-        '<th class="code_merimee">Code Mérimée</th>',
-        '</tr>',
-        '{{#each servitudes}}',
-        '<tr>',
-        '<td class="servitude_id"><div class="map" data-servitudeid="{{_id}}" data-properties="{{jsonencode .}}"></div></td>',
-        '<td class="name">{{nom}}</td>',
-        '<td class="type">{{type}}</td>',
-        '<td class="code_merimee"><a target=_blank href="http://www.culture.gouv.fr/public/mistral/mersri_fr?ACTION=CHERCHER&FIELD_1=REF&VALUE_1={{codeMerimee}}">{{codeMerimee}}</a></td>',
-        '</tr>',
-
-        '{{/each}}',
-        '</table>',
-        '</ul>',
-
-        '{{/ifCount}}',
-        '</div>',
-        '{{/ifCond}}'
-
+        '<div class="urbaclic-plus"></div>',
+        '<div class="urbaclic-servitudes"></div>'
     ];
 
 
@@ -1074,7 +1086,6 @@ jQuery(document).ready(function ($) {
                     //layers.zones_servitudes.addTo(map);
                     updateLayerController();
                 }
-
                 var map_container = jQuery(this);
                 var servitude_id = map_container.data('servitudeid');
                 var properties = map_container.data('properties');
@@ -1171,10 +1182,85 @@ jQuery(document).ready(function ($) {
                     layers.zones_servitudes.addLayer(layer_assiette2);
 
                 });
+                console.log("SERVITUDES")
+
+            });
+            
+
+        }
+        
+        var getPlusDetail = function () {
+            container.find('.map[data-pluid]').each(function () {
+                console.log("plu run")
+               /*if (layers.servitudes == null) {
+                    layers.servitudes = L.layerGroup();
+                    layers.servitudes.addTo(map);
+                    updateLayerController();
+                }
+
+                if (layers.zones_servitudes == null) {
+                    layers.zones_servitudes = L.layerGroup();
+                    //layers.zones_servitudes.addTo(map);
+                    updateLayerController();
+                }
+                
+                
+                //console.log("this",this)*/
+                
+                var current_background = null;
+                jQuery.each(backgroundLayers, function (t, l) {
+                    if (map.hasLayer(l)) current_background = t;
+                });
+    
+                if (null == current_background) {
+                    var l = urbaClicUtils.getModelLayer(urbaClic_options.background_layers[0], urbaClic_options.ign_key);
+                    current_background = l.title;
+                }
+                current_background = modelLayerKey[current_background];
+                
+                var map_container = jQuery(this);
+                //var servitude_id = map_container.data('servitudeid');
+                var properties = map_container.data('properties');
+                    console.log(properties)
+                var options = jQuery.extend(urbaClic_options.leaflet_map_options, {
+                    zoomControl: false
+                });
+
+
+
+                //var url = URBA_API + 'servitudes/' + servitude_id;
+
+                var plu_map = L.map(map_container[0], options).setView([46.6795944656402, 2.197265625], 4);
+                plu_map.attributionControl.setPrefix('');
+
+                var l = urbaClicUtils.getModelLayer(current_background, urbaClic_options.ign_key);
+                l.layer.addTo(plu_map);
+
+                var geojson_generateur = {
+                        type: "FeatureCollection",
+                        features: [{
+                            type: "Feature",
+                            properties: {},
+                            geometry: properties
+                        }]
+                    };
+
+
+                    var layer_generateur = L.geoJson(geojson_generateur, {
+                        style: {
+                            'className': 'generateur'
+                        },
+                        clickable: false
+                    });
+                    layer_generateur.addTo(plu_map);
+                    plu_map.fitBounds(layer_generateur.getBounds());
+
+
+                
 
 
             });
-
+        console.log("getPlusDetail")
 
         }
 
@@ -1233,71 +1319,79 @@ jQuery(document).ready(function ($) {
                 });
             }
 
+            
             //load_servitudes
-            if (urbaClic_options.get_servitude) {
+             if (urbaClic_options.get_servitude) {
 
-                var geom = layer.toGeoJSON();
-                geom = geom.geometry;
-                var url = URBA_API + 'servitudes';
-
-                var params = {
-                    geom: geom
-                };
-
-
-                $.ajax({
-                    url: url,
-                    type: "POST",
-                    data: JSON.stringify(params),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    success: function (data) {
-                        current_parcelle.data.servitudes = data;
-                        jQuery('.urbaclic-data').html(Templates.parcelleData(current_parcelle.data));
-                        getServitudesDetail();
-                    }
-                });
-
-
-            }
-
+                    var geom = layer.toGeoJSON();
+                   console.log(geom)
+                    geom = geom.geometry;
+                    var url = URBA_API + 'servitudes';
+    
+                    var params = {
+                        geom: geom
+                    };
+    
+    
+                    $.ajax({
+                        url: url,
+                        type: "POST",
+                        data: JSON.stringify(params),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (data) {
+                            current_parcelle.data.servitudes = data;
+                            jQuery('.urbaclic-servitudes').html(Templates.servitudesData(current_parcelle.data));
+                            getServitudesDetail();
+                        }
+                    });
+    
+    
+                }
+            
             //load_plu
-            if (urbaClic_options.get_plu) {
-                //****************************************************************************************
-
-                /* var geom = layer.toGeoJSON();
-                geom = geom.geometry;
-                var url = URBA_API + 'servitudes';
-
-                var params = {
-                    geom: geom
-                };
-
-
-                $.ajax({
-                    url: url,
-                    type: "POST",
-                    data: JSON.stringify(params),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    success: function (data) {
-                        current_parcelle.data.servitudes = data;
-                        jQuery('.urbaclic-data').html(Templates.parcelleData(current_parcelle.data));
-                    }
-                });*/
-
-                var plu_data = {
-                    'LIBELLE': 'Espace urbanisé',
-                    'TXT': 'Description'
-
-                };
-                current_parcelle.data.plu = plu_data;
-                jQuery('.urbaclic-data').html(Templates.parcelleData(current_parcelle.data));
-
-
-                //****************************************************************************************
-
-            }
+                
+                if (urbaClic_options.get_plu) {
+            var lat = layers.marqueur._latlng.lat;
+            var lng = layers.marqueur._latlng.lng;
+            var data = "\r\n<wfs:GetFeature service=\"WFS\" version=\"1.0.0\"\r\n      outputFormat=\"json\"\r\n      xmlns:wfs=\"http://www.opengis.net/wfs\"\r\n      xmlns=\"http://www.opengis.net/ogc\"\r\n      xmlns:gml=\"http://www.opengis.net/gml\"\r\n      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n      xsi:schemaLocation=\"http://www.opengis.net/wfs\r\n                          http://schemas.opengis.net/wfs/1.0.0/WFS-basic.xsd\">\r\n      <wfs:Query typeName=\"PLU:ZONE_URBA\" srsName=\"EPSG:4326\">\r\n        <Filter>\r\n          <Contains>\r\n            <PropertyName>GEOM</PropertyName>\r\n              <gml:Point srsName=\"http://www.opengis.net/gml/srs/epsg.xml#4326\">\r\n                <gml:coordinates>"+lng+","+lat+"</gml:coordinates>\r\n              </gml:Point>\r\n            </Contains>\r\n          </Filter>\r\n      </wfs:Query>\r\n    </wfs:GetFeature>";
+            
+            var xhr = new XMLHttpRequest();
+            xhr.withCredentials = true;
+            
+            
+            
+            xhr.open("POST", "https://geo.geoplateforme17.fr/PLU/wfs");
+            
+            xhr.send(data);
+            
+            xhr.addEventListener("readystatechange", function () {
+                
+              if (this.readyState === 4) {
+                  
+                  var json =  JSON.parse(this.response);
+                
+                    
+                    
+                    
+                        current_parcelle.data.plus = json.features;
+                        jQuery('.urbaclic-plus').html(Templates.plusData(current_parcelle.data));
+                        setTimeout(function(){
+                            getPlusDetail();
+                        },100)
+                 
+                    
+                    
+    
+                    //****************************************************************************************
+    
+                }
+                
+              
+            });
+                }
+            
+            
 
 
 

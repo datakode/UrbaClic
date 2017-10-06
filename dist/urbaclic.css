@@ -186,16 +186,16 @@
   text-align: center;
   border: 1px solid #ddd;
 }
-.urbaclic-data > div > table {
+.urbaclic-data > div  table {
   width: 100%;
   border-collapse: collapse;
   border-spacing: 0;
 }
-.urbaclic-data > div > table th {
+.urbaclic-data > div  table th {
   font-weight: bold;
 }
-.urbaclic-data > div > table th,
-.urbaclic-data > div > table td {
+.urbaclic-data > div  table th,
+.urbaclic-data > div  table td {
   padding: 5px;
   text-align: center;
   border: 1px solid #ddd;
